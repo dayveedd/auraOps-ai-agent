@@ -19,9 +19,9 @@ body::before {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-image: url('https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?q=80&w=2070&auto=format&fit=crop');
-  background-size: cover;
-  background-position: center;
-  filter: blur(8px) brightness(0.4);
+  background: radial-gradient(circle at 15% 50%, rgba(176, 38, 255, 0.08), transparent 30%),
+              radial-gradient(circle at 85% 30%, rgba(15, 240, 252, 0.12), transparent 30%),
+              linear-gradient(to bottom right, #050505, #000000, #0a0a0a);
+  background-attachment: fixed;
   z-index: -1;
 }

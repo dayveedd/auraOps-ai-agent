@@ -3,6 +3,10 @@
 .env.local
 .env.*.local
 
+# Google service account credentials
+backend/service_account.json
+service_account.json
+
 # Python
 backend/venv/
 backend/__pycache__/

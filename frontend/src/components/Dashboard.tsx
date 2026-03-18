@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { CheckCircle, ShieldAlert, XCircle, LogOut } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
+import ActionHistory from './ActionHistory';
 
 const Dashboard: React.FC = () => {
   const { user, logout, getAccessTokenSilently } = useAuth0();
@@ -17,6 +18,12 @@ const Dashboard: React.FC = () => {
   const thread_ts = searchParams.get('thread_ts') || sessionStorage.getItem('pending_thread_ts') || undefined;
   const quantity = parseInt(searchParams.get('quantity') || sessionStorage.getItem('pending_quantity') || '50', 10);
   const amount = parseInt(searchParams.get('amount') || sessionStorage.getItem('pending_amount') || '10000', 10);
+  // Calendar event params
+  const title = searchParams.get('title') || sessionStorage.getItem('pending_title') || undefined;
+  const start_time = searchParams.get('start_time') || sessionStorage.getItem('pending_start_time') || undefined;
+  const duration_minutes = parseInt(searchParams.get('duration_minutes') || sessionStorage.getItem('pending_duration_minutes') || '60', 10);
+  const description = searchParams.get('description') || sessionStorage.getItem('pending_description') || undefined;
+  const attendees = searchParams.get('attendees') || sessionStorage.getItem('pending_attendees') || undefined;
 
   const [status, setStatus] = useState<'idle' | 'authorizing' | 'success' | 'error'>('idle');
 
@@ -53,7 +60,7 @@ const Dashboard: React.FC = () => {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/callback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, intent, channel, thread_ts, quantity, amount })
+        body: JSON.stringify({ token, intent, channel, thread_ts, quantity, amount, title, start_time, duration_minutes, description, attendees })
       });
       
       if (response.ok) {
@@ -68,7 +75,7 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="flex flex-col min-h-screen items-center justify-center p-4 w-full">
       <div className="absolute top-4 right-4 z-50">
         <button
           onClick={handleLogout}
@@ -78,14 +85,16 @@ const Dashboard: React.FC = () => {
         </button>
       </div>
 
-      <div className="glass-panel max-w-lg w-full p-8 relative overflow-hidden">
+      <div className="glass-panel max-w-lg w-full p-8 relative overflow-hidden mb-8 mt-12">
         <div className="absolute top-0 left-0 w-full h-1 bg-electricBlue shadow-[0_0_10px_rgba(15,240,252,0.8)]" />
         
         <div className="flex items-center justify-center mb-6">
           <ShieldAlert className="w-12 h-12 text-neonPurple animate-pulse" />
         </div>
         
-        <h2 className="text-2xl font-bold text-center mb-4">Authorization Required</h2>
+        <h2 className="text-2xl font-bold text-center mb-4">
+          {intent ? "Authorization Required" : "Agent Command Center"}
+        </h2>
         
         {user && (
           <div className="bg-white/5 rounded-lg p-4 mb-4 border border-white/10 text-left relative group">
@@ -100,22 +109,25 @@ const Dashboard: React.FC = () => {
           </div>
         )}
         
-        <div className="bg-white/5 rounded-lg p-4 mb-8 border border-white/10">
-          <p className="text-gray-300 text-sm mb-1">Agent Request:</p>
-          <p className="font-mono text-electricBlue font-bold text-lg">
-            {intent === 'provision_wallets' ? 'PROVISION_WALLETS' : 
-             intent === 'pay_vendor' ? 'PAY_VENDOR' : 'UNKNOWN_OPERATION'}
-          </p>
-          <p className="text-sm mt-3 text-gray-400">
-            Requested by: <span className="text-white">{user?.email}</span>
-          </p>
-        </div>
+        {intent && (
+          <div className="bg-white/5 rounded-lg p-4 mb-8 border border-white/10">
+            <p className="text-gray-300 text-sm mb-1">Agent Request:</p>
+            <p className="font-mono text-electricBlue font-bold text-lg">
+                        {intent === 'provision_wallets' ? 'PROVISION_WALLETS' :
+               intent === 'pay_vendor' ? 'PAY_VENDOR' :
+               intent === 'schedule_event' ? 'SCHEDULE_EVENT' : 'UNKNOWN_OPERATION'}
+            </p>
+            <p className="text-sm mt-3 text-gray-400">
+              Requested by: <span className="text-white">{user?.email}</span>
+            </p>
+          </div>
+        )}
 
-        {status === 'idle' && (
+        {status === 'idle' && intent && (
           <div className="space-y-4">
             <button
               onClick={handleAuthorize}
-              disabled={!intent}
+              disabled={!['provision_wallets','pay_vendor','schedule_event'].includes(intent || '')}
               className="w-full bg-neonPurple hover:bg-neonPurple/80 disabled:opacity-50 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform shadow-[0_0_20px_rgba(176,38,255,0.4)]"
             >
               AUTHORIZE AGENT
@@ -154,6 +166,10 @@ const Dashboard: React.FC = () => {
             </button>
           </div>
         )}
+      </div>
+
+      <div className="w-full max-w-3xl">
+        <ActionHistory />
       </div>
     </div>
   );

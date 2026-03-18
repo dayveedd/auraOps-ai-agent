@@ -18,6 +18,11 @@ function AuthorizeRoute({ isAuthenticated }: { isAuthenticated: boolean }) {
         if (params.get('thread_ts')) sessionStorage.setItem('pending_thread_ts', params.get('thread_ts')!);
         if (params.get('quantity')) sessionStorage.setItem('pending_quantity', params.get('quantity')!);
         if (params.get('amount')) sessionStorage.setItem('pending_amount', params.get('amount')!);
+        if (params.get('title')) sessionStorage.setItem('pending_title', params.get('title')!);
+        if (params.get('start_time')) sessionStorage.setItem('pending_start_time', params.get('start_time')!);
+        if (params.get('duration_minutes')) sessionStorage.setItem('pending_duration_minutes', params.get('duration_minutes')!);
+        if (params.get('description')) sessionStorage.setItem('pending_description', params.get('description')!);
+        if (params.get('attendees')) sessionStorage.setItem('pending_attendees', params.get('attendees')!);
       }
     }
   }, [isAuthenticated, location]);

@@ -6,7 +6,7 @@ from auth0_ai_langchain.auth0_ai import Auth0AI
 # Load env variables before importing routers
 load_dotenv(override=True)
 
-from routers import slack, auth
+from routers import slack, auth, dashboard_api
 
 app = FastAPI(title="AuraOps API")
 
@@ -21,6 +21,7 @@ app.add_middleware(
 
 app.include_router(slack.router, prefix="/slack")
 app.include_router(auth.router)
+app.include_router(dashboard_api.router)
 
 @app.get("/")
 def read_root():
