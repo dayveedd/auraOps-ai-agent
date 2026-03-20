@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -10,10 +11,15 @@ from routers import slack, auth, dashboard_api
 
 app = FastAPI(title="AuraOps API")
 
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
 # Add CORS middleware to allow the Vite frontend to communicate with FastAPI
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        frontend_url
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
