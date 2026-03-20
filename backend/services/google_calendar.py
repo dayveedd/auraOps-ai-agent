@@ -1,4 +1,5 @@
 import os
+import json
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, Optional
 from google.oauth2 import service_account
@@ -16,9 +17,27 @@ CALENDAR_OWNER_EMAIL = os.environ.get("GOOGLE_CALENDAR_OWNER_EMAIL", "")
 
 def _get_calendar_service():
     """Returns an authenticated Google Calendar service client."""
-    credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE, scopes=SCOPES
-    )
+    service_json = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON")
+    
+    if service_json:
+        # Load from environment variable (Production / Render)
+        try:
+            info = json.loads(service_json)
+            credentials = service_account.Credentials.from_service_account_info(
+                info, scopes=SCOPES
+            )
+        except json.JSONDecodeError:
+            raise ValueError("GOOGLE_SERVICE_ACCOUNT_JSON is not a valid JSON string.")
+    else:
+        # Fallback to local file (Local Development)
+        if not os.path.exists(SERVICE_ACCOUNT_FILE):
+             raise FileNotFoundError(
+                 "No GOOGLE_SERVICE_ACCOUNT_JSON found in env, and local service_account.json is missing."
+             )
+        credentials = service_account.Credentials.from_service_account_file(
+            SERVICE_ACCOUNT_FILE, scopes=SCOPES
+        )
+        
     return build("calendar", "v3", credentials=credentials)
 
 
