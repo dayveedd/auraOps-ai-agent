@@ -11,13 +11,14 @@ from routers import slack, auth, dashboard_api
 
 app = FastAPI(title="AuraOps API")
 
-frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
 
 # Add CORS middleware to allow the Vite frontend to communicate with FastAPI
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
+        "https://auraops-ai.vercel.app",
         frontend_url
     ],
     allow_credentials=True,
